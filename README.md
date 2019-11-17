@@ -1,5 +1,7 @@
 # @o-rango/update-notify
 
+[![Build Status](https://travis-ci.com/o-rango/update-notify.svg?branch=master)](https://travis-ci.com/o-rango/update-notify) 
+
 
 Inspired in update-notifier but using the default `npm` api that way is working behind `proxy` or any other config reflected in `.npmrc`.
 
