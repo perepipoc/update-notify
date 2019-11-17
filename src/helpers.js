@@ -2,6 +2,8 @@
 const importLazy = require('import-lazy')(require);
 const ciInfo = importLazy('ci-info');
 const execa = importLazy('execa');
+const semver = importLazy('semver');
+const ConfigStore = importLazy('configstore');
 
 /**
  * This function says hello.
@@ -34,9 +36,9 @@ const pingRegistry = async function() {
  * @param name Some name to say hello for.
  * @returns The hello.
  */
-const latestVersion = async function(pkgName) {
+const latestVersion = async function(pkgName, distTag = 'latest') {
   const { stdout } = await execa.command(
-    `npm info ${pkgName} dist-tags.latest`
+    `npm info ${pkgName} dist-tags.${distTag}`
   );
   return { latest: await stdout };
 };
@@ -46,13 +48,53 @@ const latestVersion = async function(pkgName) {
  * @param name Some name to say hello for.
  * @returns The hello.
  */
-const getConfig = function() {};
+const semverCheck = function(currentVersion, latestVersion) {
+  return semver.lte(currentVersion, latestVersion.latest);
+};
 
 /**
  * This function says hello.
  * @param name Some name to say hello for.
  * @returns The hello.
  */
-const saveConfig = function() {};
+const setConfig = function(packageName) {
+  try {
+    return new ConfigStore(`o-update-notify-${packageName}`, {
+      lastUpdateCheck: Date.now()
+    });
+  } catch (error) {
+    // Expecting error code EACCES or EPERM
+    console.error(`
+    ${error} , Looks like EACCES or EPERM error ocurred, Try running with %s or get access sudo permissions.
+  `);
+  }
+};
 
-module.exports = { isCI, pingRegistry, latestVersion, getConfig, saveConfig };
+/**
+ * This function says hello.
+ * @param name Some name to say hello for.
+ * @returns The hello.
+ */
+const getConfig = function(packageName, config = '') {
+  return new ConfigStore(`o-update-notify-${packageName}`).get(config);
+};
+
+/**
+ * This function says hello.
+ * @param name Some name to say hello for.
+ * @returns The hello.
+ */
+const shouldCheckUpdates = function(lastUpdateCheck, updateCheckInterval) {
+  if (!lastUpdateCheck && !updateCheckInterval) return false;
+  return !(Date.now() - lastUpdateCheck < updateCheckInterval);
+};
+
+module.exports = {
+  isCI,
+  pingRegistry,
+  latestVersion,
+  semverCheck,
+  setConfig,
+  getConfig,
+  shouldCheckUpdates
+};

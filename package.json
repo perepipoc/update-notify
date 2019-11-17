@@ -1,12 +1,11 @@
 {
-  "name": "generator-nod",
+  "name": "@o-rango/update-notify",
   "version": "0.0.1",
   "description": "Check if an package needs to be update ",
   "author": "romulo cintra",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "files": [
-    "dist",
     "src"
   ],
   "repository": {
@@ -38,7 +37,7 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint . --fix",
+      "npm run lint",
       "git add"
     ]
   },
