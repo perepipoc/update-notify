@@ -6,18 +6,16 @@ const semver = importLazy('semver');
 const ConfigStore = importLazy('configstore');
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ *  @method isCI Check if is running on CI ENVIRONMENT
+ * @returns {boolean} is CI or is not CI
  */
 const isCI = function() {
   return ciInfo.isCI;
 };
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ * @method pingRegistry
+ * Check if there is connectivity with registry having short-circuit 5 seconds fail
  */
 const pingRegistry = async function() {
   const timer = setTimeout(process.exit, 1000 * 5);
@@ -32,9 +30,10 @@ const pingRegistry = async function() {
 };
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ * @method latestVersion checks latest version of pkg in registry.
+ * @param {string} pkgName package name
+ * @param {string} distTag type of tags to search against registry
+ * @returns {Object} latest version of package in registry
  */
 const latestVersion = async function(pkgName, distTag = 'latest') {
   const { stdout } = await execa.command(
@@ -47,18 +46,17 @@ const latestVersion = async function(pkgName, distTag = 'latest') {
 };
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ * @method pkgSemver
+ * @description compare if packages satisfies semver
  */
 const semverCheck = function(currentVersion, latestVersion) {
-  return semver.lte(currentVersion, latestVersion.latest);
+  return semver.lt(currentVersion, latestVersion.latest);
 };
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ * @method setConfig runs configstore and save configuration
+ * @param packageName Some name to say hello for.
+ * @param params extra configuration to save.
  */
 const setConfig = function(packageName, params = {}) {
   try {
@@ -75,24 +73,29 @@ const setConfig = function(packageName, params = {}) {
 };
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ * @method getConfig runs configstore and save configuration
+ * @param packageName key to retrieve config.
+ * @param config  value to be retrieved from the config.
  */
 const getConfig = function(packageName, config = '') {
   return new ConfigStore(`o-update-notify-${packageName}`).get(config);
 };
 
 /**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
+ * @method shouldCheckUpdates runs configstore and save configuration
+ * @param lastUpdateCheck when notify-update was last checked
+ * @param updateCheckInterval interval that configuration must be checked
+ * @returns {boolean} if it should run or not
  */
 const shouldCheckUpdates = function(lastUpdateCheck, updateCheckInterval) {
   if (!lastUpdateCheck && !updateCheckInterval) return false;
   return !(Date.now() - lastUpdateCheck < updateCheckInterval);
 };
 
+/**
+ * @method notifyFlow workflow of check and save configuration
+ * @param options options to be passed over the fn
+ */
 const notifyFlow = async function(options) {
   const { name, version } = options.pkg || {};
   const { distTag } = options.distTag || 'latest';
