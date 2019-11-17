@@ -1,8 +1,22 @@
-/**
- * This function says hello.
- * @param name Some name to say hello for.
- * @returns The hello.
- */
-const sayHello = (name = 'Haz') => `Hello, ${name}!`;
+const { isCI, pingRegistry, latestVersion } = require('./helpers');
 
-export default sayHello;
+const fn = () => {
+  console.log('regs');
+  pingRegistry()
+    .then(a => {
+      console.log(a);
+    })
+    .catch(e => {
+      console.log('erro');
+    });
+
+  latestVersion('axios')
+    .then(a => {
+      console.log(a);
+    })
+    .catch(e => {
+      console.log('erro');
+    });
+};
+
+fn();
