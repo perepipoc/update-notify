@@ -1,12 +1,11 @@
 {
-  "name": "generator-nod",
+  "name": "@o-rango/update-notify",
   "version": "0.0.1",
   "description": "Check if an package needs to be update ",
   "author": "romulo cintra",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "files": [
-    "dist",
     "src"
   ],
   "repository": {
@@ -38,13 +37,14 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint . --fix",
+      "npm run lint",
       "git add"
     ]
   },
   "dependencies": {
     "ci-info": "^2.0.0",
     "configstore": "^5.0.0",
+    "execa": "3.3.0",
     "import-lazy": "^4.0.0",
     "semver": "^6.3.0"
   },
@@ -54,5 +54,29 @@
     "lint-staged": "9.4.3",
     "prettier": "1.19.1",
     "standard-version": "7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testRegex": "(/tests/.*|\\.(test|spec))\\.(|js)$",
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "functions": 80,
+        "statements": -10
+      }
+    },
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "!src/**/*.stories.js",
+      "src/**/*.{js,jsx}",
+      "!src/**/index.{js,jsx}"
+    ]
   }
 }
