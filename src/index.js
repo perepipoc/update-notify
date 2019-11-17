@@ -1,46 +1,40 @@
 const {
   isCI,
   pingRegistry,
-  latestVersion,
   semverCheck,
   getConfig,
-  setConfig,
-  shouldCheckUpdates
+  shouldCheckUpdates,
+  notifyFlow
 } = require('./helpers');
 
-const updateNotifyFlow = async function(options) {
-  const { name, version } = options.pkg || {};
-  const { distTag } = options.distTag || 'latest';
-
-  try {
-    const { isOnline } = await pingRegistry();
-    if (await isOnline) {
-      const lVersion = await latestVersion(name, distTag);
-      const updateResult = semverCheck(version, await lVersion);
-      return {
-        updateAvailable: updateResult,
-        latest: lVersion.latest,
-        currentt: version
-      };
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const updateNotify = async function(options = {}) {
+const updateNotify = function(options = {}) {
   // Never run on CI
   if (isCI()) return;
   if (!options.pkg.name || !options.pkg.version)
     throw new Error('pkg.name and pkg.version required');
   const { updateCheckInterval = 1000 * 60 * 60 * 24 } = options;
 
-  return shouldCheckUpdates(
-    getConfig(options.pkg.name, 'lastUpdateCheck'),
-    updateCheckInterval
-  )
-    ? updateNotifyFlow(options)
-    : setConfig(options.pkg.name);
+  if (
+    shouldCheckUpdates(
+      getConfig(options.pkg.name, 'lastUpdateCheck'),
+      updateCheckInterval
+    )
+  ) {
+    const latestCachedVersion = getConfig(options.pkg.name, 'latest');
+
+    if (semverCheck(options.pkg.version, { latest: latestCachedVersion })) {
+      return {
+        updateAvailable: true,
+        name: options.pkg.name,
+        latest: latestCachedVersion,
+        current: options.pkg.version
+      };
+    } else {
+      notifyFlow(options);
+    }
+  } else {
+    notifyFlow(options);
+  }
 };
 
 module.exports = {

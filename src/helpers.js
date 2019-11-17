@@ -21,7 +21,7 @@ const isCI = function() {
  */
 const pingRegistry = async function() {
   const timer = setTimeout(process.exit, 1000 * 5);
-  const { failed } = await execa.command('npm ping');
+  const { failed } = await execa.command('npm ping', { detached: true });
 
   const exit = () => {
     clearTimeout(timer);
@@ -38,7 +38,10 @@ const pingRegistry = async function() {
  */
 const latestVersion = async function(pkgName, distTag = 'latest') {
   const { stdout } = await execa.command(
-    `npm info ${pkgName} dist-tags.${distTag}`
+    `npm info ${pkgName} dist-tags.${distTag}`,
+    {
+      detached: true
+    }
   );
   return { latest: await stdout };
 };
@@ -57,9 +60,10 @@ const semverCheck = function(currentVersion, latestVersion) {
  * @param name Some name to say hello for.
  * @returns The hello.
  */
-const setConfig = function(packageName) {
+const setConfig = function(packageName, params = {}) {
   try {
     return new ConfigStore(`o-update-notify-${packageName}`, {
+      ...params,
       lastUpdateCheck: Date.now()
     });
   } catch (error) {
@@ -89,6 +93,22 @@ const shouldCheckUpdates = function(lastUpdateCheck, updateCheckInterval) {
   return !(Date.now() - lastUpdateCheck < updateCheckInterval);
 };
 
+const notifyFlow = async function(options) {
+  const { name, version } = options.pkg || {};
+  const { distTag } = options.distTag || 'latest';
+  const { isOnline } = await pingRegistry();
+
+  if (await isOnline) {
+    const lVersion = await latestVersion(name, distTag);
+    const updateResult = semverCheck(version, await lVersion);
+    setConfig(name, {
+      updateAvailable: updateResult,
+      latest: lVersion.latest,
+      current: version
+    });
+  }
+};
+
 module.exports = {
   isCI,
   pingRegistry,
@@ -96,5 +116,6 @@ module.exports = {
   semverCheck,
   setConfig,
   getConfig,
-  shouldCheckUpdates
+  shouldCheckUpdates,
+  notifyFlow
 };
