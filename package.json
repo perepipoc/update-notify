@@ -1,6 +1,6 @@
 {
   "name": "@o-rango/update-notify",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Check if an package needs to be update ",
   "author": "romulo cintra",
   "license": "MIT",
