@@ -19,7 +19,7 @@ const isCI = function() {
  */
 const pingRegistry = async function() {
   const timer = setTimeout(process.exit, 1000 * 5);
-  const { failed } = await execa.command('npm ping', { detached: true });
+  const { failed } = await execa.command('npm ping', { detached: false });
 
   const exit = () => {
     clearTimeout(timer);
@@ -39,7 +39,7 @@ const latestVersion = async function(pkgName, distTag = 'latest') {
   const { stdout } = await execa.command(
     `npm info ${pkgName} dist-tags.${distTag}`,
     {
-      detached: true
+      detached: false
     }
   );
   return { latest: await stdout };
