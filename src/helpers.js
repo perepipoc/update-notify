@@ -88,7 +88,7 @@ const getConfig = function(packageName, config = '') {
  * @returns {boolean} if it should run or not
  */
 const shouldCheckUpdates = function(lastUpdateCheck, updateCheckInterval) {
-  if (!lastUpdateCheck && !updateCheckInterval) return false;
+  if (!lastUpdateCheck) return false;
   return !(Date.now() - lastUpdateCheck < updateCheckInterval);
 };
 
@@ -99,17 +99,14 @@ const shouldCheckUpdates = function(lastUpdateCheck, updateCheckInterval) {
 const notifyFlow = async function(options) {
   const { name, version } = options.pkg || {};
   const { distTag } = options.distTag || 'latest';
-  const { isOnline } = await pingRegistry();
 
-  if (await isOnline) {
-    const lVersion = await latestVersion(name, distTag);
-    const updateResult = semverCheck(version, await lVersion);
-    setConfig(name, {
-      updateAvailable: updateResult,
-      latest: lVersion.latest,
-      current: version
-    });
-  }
+  const lVersion = await latestVersion(name, distTag);
+  const updateResult = semverCheck(version, await lVersion);
+  setConfig(name, {
+    updateAvailable: updateResult,
+    latest: lVersion.latest,
+    current: version
+  });
 };
 
 module.exports = {
