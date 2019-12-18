@@ -36,13 +36,18 @@ const pingRegistry = async function() {
  * @returns {Object} latest version of package in registry
  */
 const latestVersion = async function(pkgName, distTag = 'latest') {
-  const { stdout } = await execa.command(
-    `npm info ${pkgName} dist-tags.${distTag}`,
-    {
-      detached: false
-    }
-  );
-  return { latest: await stdout };
+  try {
+    const { stdout, stderr } = await execa.command(
+      `npm info ${pkgName} dist-tags.${distTag}`,
+      {
+        detached: process.platform !== 'win32'
+      }
+    );
+    if (stderr !== '') return;
+    return await stdout;
+  } catch (error) {
+    return;
+  }
 };
 
 /**
@@ -50,7 +55,7 @@ const latestVersion = async function(pkgName, distTag = 'latest') {
  * @description compare if packages satisfies semver
  */
 const semverCheck = function(currentVersion, latestVersion) {
-  return semver.lt(currentVersion, latestVersion.latest);
+  return semver.lt(currentVersion, latestVersion);
 };
 
 /**
@@ -60,10 +65,9 @@ const semverCheck = function(currentVersion, latestVersion) {
  */
 const setConfig = function(packageName, params = {}) {
   try {
-    return new ConfigStore(`o-update-notify-${packageName}`, {
-      ...params,
-      lastUpdateCheck: Date.now()
-    });
+    const result = new ConfigStore(`o-update-notify-${packageName}`);
+    result.set(params);
+    return result;
   } catch (error) {
     // Expecting error code EACCES or EPERM
     console.error(`
@@ -78,7 +82,8 @@ const setConfig = function(packageName, params = {}) {
  * @param config  value to be retrieved from the config.
  */
 const getConfig = function(packageName, config = '') {
-  return new ConfigStore(`o-update-notify-${packageName}`).get(config);
+  const result = new ConfigStore(`o-update-notify-${packageName}`).get(config);
+  return result;
 };
 
 /**
@@ -99,13 +104,14 @@ const shouldCheckUpdates = function(lastUpdateCheck, updateCheckInterval) {
 const notifyFlow = async function(options) {
   const { name, version } = options.pkg || {};
   const { distTag } = options.distTag || 'latest';
-
   const lVersion = await latestVersion(name, distTag);
-  const updateResult = semverCheck(version, await lVersion);
+  if (!lVersion) return;
+  const updateResult = semverCheck(version, lVersion);
   setConfig(name, {
     updateAvailable: updateResult,
-    latest: lVersion.latest,
-    current: version
+    latest: lVersion,
+    current: version,
+    lastUpdateCheck: Date.now()
   });
 };
 

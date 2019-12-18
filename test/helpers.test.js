@@ -10,12 +10,12 @@ const {
 
 describe('Helpers Test - Semver', () => {
   test('Semver check ', async () => {
-    const result = semverCheck('0.0.1', { latest: '0.0.2' });
+    const result = semverCheck('0.0.1', '0.0.2');
     expect(result).toBe(true);
   });
 
   test('Semver check ', async () => {
-    const result = semverCheck('0.1.1', { latest: '0.0.2' });
+    const result = semverCheck('0.1.1', '0.0.2');
     expect(result).toBe(false);
   });
 });
@@ -30,7 +30,7 @@ describe('Helpers Test - pingRegistry', () => {
 describe('Helpers Test - latestVersion', () => {
   test('latestVersion', async () => {
     const result = latestVersion('react', 'latest');
-    await expect(result).resolves.toHaveProperty('latest');
+    await expect(result).resolves.toContain('16');
   });
 });
 

@@ -13,27 +13,23 @@ const updateNotify = function(options = {}) {
   if (!options.pkg.name || !options.pkg.version)
     throw new Error('pkg.name and pkg.version required');
   const { updateCheckInterval = 1000 * 60 * 60 * 24 } = options;
+  const lastUpdateCheck = getConfig(options.pkg.name, 'lastUpdateCheck');
+  const latestCachedVersion = getConfig(options.pkg.name, 'latest');
+  const updateAvailable = getConfig(options.pkg.name, 'updateAvailable');
 
-  if (
-    shouldCheckUpdates(
-      getConfig(options.pkg.name, 'lastUpdateCheck'),
-      updateCheckInterval
-    )
-  ) {
-    const latestCachedVersion = getConfig(options.pkg.name, 'latest');
+  if (!lastUpdateCheck && !latestCachedVersion && !updateAvailable)
+    notifyFlow(options); // 1st Run
+  if (!shouldCheckUpdates(lastUpdateCheck, updateCheckInterval)) return;
+  if (!semverCheck(options.pkg.version, latestCachedVersion)) return;
 
-    if (semverCheck(options.pkg.version, { latest: latestCachedVersion })) {
-      return {
-        updateAvailable: true,
-        name: options.pkg.name,
-        latest: latestCachedVersion,
-        current: options.pkg.version
-      };
-    } else {
-      notifyFlow(options);
-    }
-  } else {
-    notifyFlow(options);
+  notifyFlow(options);
+  if (updateAvailable) {
+    return {
+      updateAvailable: updateAvailable,
+      name: options.pkg.name,
+      latest: latestCachedVersion,
+      current: options.pkg.version
+    };
   }
 };
 
