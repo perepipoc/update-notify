@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/o-rango/update-notify/compare/v0.1.0...v0.1.1) (2020-01-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency execa to v3.4.0 ([#6](https://github.com/o-rango/update-notify/issues/6)) ([a7b0a83](https://github.com/o-rango/update-notify/commit/a7b0a83948a058b4b69a63f4064ba628455f64ad))
+* **deps:** update dependency execa to v4 ([#9](https://github.com/o-rango/update-notify/issues/9)) ([7feaba8](https://github.com/o-rango/update-notify/commit/7feaba8aa9c635301247146400f5401261783c79))
+* **deps:** update dependency semver to v7 ([#8](https://github.com/o-rango/update-notify/issues/8)) ([4d74c5e](https://github.com/o-rango/update-notify/commit/4d74c5e5512220fccdd61d50d1d1d4a460b507da))
+
 ## [0.1.0](https://github.com/o-rango/update-notify/compare/v0.0.4...v0.1.0) (2019-12-19)
 
 
